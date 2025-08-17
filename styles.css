@@ -10,3 +10,7 @@ body {
 #history-fact {
     line-height: 1.6;
 }
+
+#next-update {
+    font-style: italic;
+}
