@@ -1,9 +1,25 @@
+// Seeded random number generator for consistent fact selection
+function seededRandom(seed) {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+}
+
 async function fetchHistory() {
+    // Use UTC for consistent date across all users
     const today = new Date();
-    const dateKey = today.toISOString().split('T')[0]; // YYYY-MM-DD
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    const formattedDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(today);
+    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const dateKey = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    const formattedDate = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(utcDate);
+
+    // Calculate next update time (midnight UTC next day)
+    const nextUpdate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
+    const nextUpdateFormatted = nextUpdate.toLocaleString('en-US', { 
+        timeZone: 'UTC', 
+        hour: 'numeric', 
+        minute: 'numeric', 
+        hour12: true 
+    });
+    document.getElementById('next-update').textContent = `Next update: ${nextUpdateFormatted} UTC`;
 
     // Check localStorage for cached fact
     const cachedData = localStorage.getItem('historyFact');
@@ -16,7 +32,9 @@ async function fetchHistory() {
         }
     }
 
-    // Fetch new fact if no valid cache
+    // Fetch new fact
+    const month = utcDate.getUTCMonth() + 1;
+    const day = utcDate.getUTCDate();
     const url = `https://history.muffinlabs.com/date/${month}/${day}`;
     try {
         const response = await fetch(url);
@@ -25,11 +43,13 @@ async function fetchHistory() {
         }
         const data = await response.json();
 
-        // Pick a random event
+        // Use seeded random to pick the same fact for all users on this date
         const events = data.data.Events;
         let factText = 'No historical events found for this day.';
         if (events && events.length > 0) {
-            const randomIndex = Math.floor(Math.random() * events.length);
+            // Generate a seed based on the date
+            const seed = parseInt(dateKey.replace(/-/g, ''), 10);
+            const randomIndex = Math.floor(seededRandom(seed) * events.length);
             const fact = events[randomIndex];
             factText = `${fact.year}: ${fact.text}`;
         }
