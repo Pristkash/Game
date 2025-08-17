@@ -4,69 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>This Day in History</title>
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        h1 {
-            font-size: 3rem;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-        p {
-            font-size: 1.5rem;
-            color: #555;
-            max-width: 600px;
-            padding: 0 1rem;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1 id="history-title">This Day in History</h1>
     <p id="history-fact">Loading historical fact...</p>
-
-    <script>
-        async function fetchHistory() {
-            const today = new Date();
-            const month = today.getMonth() + 1;
-            const day = today.getDate();
-            const url = `https://history.muffinlabs.com/date/${month}/${day}`;
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-
-                // Update title
-                document.getElementById('history-title').textContent = `This Day in History - ${data.date}`;
-
-                // Pick a random event for variety
-                const events = data.data.Events;
-                if (events && events.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * events.length);
-                    const fact = events[randomIndex];
-                    document.getElementById('history-fact').innerHTML = `${fact.year}: ${fact.text}`;
-                } else {
-                    document.getElementById('history-fact').textContent = 'No historical events found for this day.';
-                }
-            } catch (error) {
-                console.error('Error fetching history:', error);
-                document.getElementById('history-fact').textContent = 'Failed to load historical fact.';
-            }
-        }
-
-        // Call the function
-        fetchHistory();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
